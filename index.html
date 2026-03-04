@@ -721,39 +721,6 @@ footer span{color:var(--glt);}
   }, {threshold:0.4});
   document.querySelectorAll('.bfil').forEach(function(el){ ioBar.observe(el); });
 
-  /* ── CASE STUDY OPEN / CLOSE ── */
-  var openBtn  = document.getElementById('open-ebanking');
-  var csOverlay = document.getElementById('cs-overlay');
-  var csClose  = document.getElementById('cs-close');
-
-  if(openBtn && csOverlay){
-    openBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      csOverlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
-      // animate bars inside case study
-      setTimeout(function(){
-        document.querySelectorAll('.csbar-fill').forEach(function(b){
-          b.style.width = b.getAttribute('data-w');
-        });
-      }, 400);
-    });
-  }
-
-  function closeCS(){
-    if(csOverlay){ csOverlay.classList.remove('open'); }
-    document.body.style.overflow = '';
-  }
-
-  if(csClose){ csClose.addEventListener('click', closeCS); }
-  if(csOverlay){
-    csOverlay.addEventListener('click', function(e){
-      if(e.target === csOverlay) closeCS();
-    });
-  }
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape') closeCS();
-  });
 
 })();
 </script>
@@ -1092,11 +1059,50 @@ footer span{color:var(--glt);}
 </div><!-- /cs-overlay -->
 
 <script>
-// second close button
-document.getElementById('cs-close2').addEventListener('click', function(){
-  document.getElementById('cs-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-});
+// Case study open/close — runs AFTER overlay HTML is in DOM
+(function(){
+  var btn      = document.getElementById('open-ebanking');
+  var overlay  = document.getElementById('cs-overlay');
+  var close1   = document.getElementById('cs-close');
+  var close2   = document.getElementById('cs-close2');
+
+  function openCS(e){
+    if(e) e.preventDefault();
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // trigger bar animations after transition starts
+    setTimeout(function(){
+      document.querySelectorAll('.csbar-fill').forEach(function(b){
+        b.style.width = b.getAttribute('data-w');
+      });
+    }, 350);
+  }
+
+  function closeCS(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    // reset bars so they animate again next open
+    setTimeout(function(){
+      document.querySelectorAll('.csbar-fill').forEach(function(b){
+        b.style.width = '0%';
+      });
+    }, 400);
+  }
+
+  if(btn)    btn.addEventListener('click', openCS);
+  if(close1) close1.addEventListener('click', closeCS);
+  if(close2) close2.addEventListener('click', closeCS);
+
+  if(overlay){
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay) closeCS();
+    });
+  }
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && overlay && overlay.classList.contains('open')) closeCS();
+  });
+})();
 </script>
 </body>
 </html>
